@@ -1,0 +1,23 @@
+{
+  "name": "pi-new-api-balance",
+  "version": "0.2.0",
+  "description": "Display balances and usage for New API providers in Pi and Pi Web",
+  "type": "module",
+  "private": true,
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "new-api",
+    "usage",
+    "balance",
+    "multi-provider"
+  ],
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "pi": {
+    "extensions": [
+      "./extensions/index.ts"
+    ]
+  }
+}
