@@ -262,9 +262,15 @@ export default function newApiBalance(pi: ExtensionAPI) {
     const floatMs = Math.max(1_000, Number(config.deltaFloatMs) || 10_000);
     const timeout = setTimeout(() => {
       floatTimers.delete(snapshot.providerId);
-      const latest = lastSnapshots.get(snapshot.providerId);
-      if (currentContext?.hasUI && latest && currentContext.model?.provider === snapshot.providerId) {
-        currentContext.ui.setStatus(STATUS_KEY, renderStatus(currentContext, latest));
+      try {
+        const latest = lastSnapshots.get(snapshot.providerId);
+        const ctx = currentContext;
+        if (ctx?.hasUI && latest && ctx.model?.provider === snapshot.providerId) {
+          ctx.ui.setStatus(STATUS_KEY, renderStatus(ctx, latest));
+        }
+      } catch {
+        // ctx went stale after session replacement/reload — ignore this tick;
+        // the next refresh with a fresh ctx will restore the status line.
       }
     }, floatMs);
     timeout.unref?.();
@@ -276,9 +282,13 @@ export default function newApiBalance(pi: ExtensionAPI) {
     requestedProviderId?: string,
     notify = false,
   ): Promise<void> {
-    if (!ctx.hasUI) return;
-
+    // NOTE: ctx can go stale after session replacement (newSession/fork/
+    // switchSession/reload). Accessing ANY property on a stale ctx throws,
+    // and an uncaught rejection here kills the whole pi process (and with it
+    // the feishu bridge gateway). Keep every ctx touch inside try/catch.
     try {
+      if (!ctx.hasUI) return;
+
       const config = await loadConfig();
       const providerId = requestedProviderId || ctx.model?.provider;
       const provider = providerId ? config.providers?.[providerId] : undefined;
@@ -316,8 +326,14 @@ export default function newApiBalance(pi: ExtensionAPI) {
       if (notify) ctx.ui.notify(notification(snapshot), "info");
     } catch (error) {
       const message = (error as Error).message;
-      ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg("warning", `New API: ${message}`));
-      if (notify) ctx.ui.notify(`New API 余额查询失败: ${message}`, "error");
+      try {
+        ctx.ui.setStatus(STATUS_KEY, ctx.ui.theme.fg("warning", `New API: ${message}`));
+        if (notify) ctx.ui.notify(`New API 余额查询失败: ${message}`, "error");
+      } catch {
+        // ctx itself is stale — nothing we can display; swallow so the timer
+        // tick never escalates into an unhandled rejection. A later event
+        // (session_start/turn_end/model_select) retries with a fresh ctx.
+      }
     }
   }
 
@@ -328,7 +344,7 @@ export default function newApiBalance(pi: ExtensionAPI) {
     const config = await loadConfig().catch(() => ({}) as BalanceConfig);
     const refreshMs = Math.max(15_000, Number(config.refreshMs) || DEFAULT_REFRESH_MS);
     timer = setInterval(() => {
-      if (currentContext) void refresh(currentContext);
+      if (currentContext) void refresh(currentContext).catch(() => undefined);
     }, refreshMs);
     timer.unref?.();
   }
@@ -345,10 +361,14 @@ export default function newApiBalance(pi: ExtensionAPI) {
   });
 
   pi.on("turn_end", async (_event, ctx) => {
+    // Keep the interval timer's ctx fresh across session replacement/reload,
+    // otherwise the timer keeps firing with a stale ctx.
+    currentContext = ctx;
     await refresh(ctx);
   });
 
   pi.on("model_select", async (_event, ctx) => {
+    currentContext = ctx;
     await refresh(ctx);
   });
 
