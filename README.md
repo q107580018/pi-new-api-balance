@@ -41,13 +41,13 @@ Without management credentials, the package queries `/dashboard/billing/subscrip
 ## Install
 
 ```bash
-pi install npm:pi-new-api-balance
+pi install npm:@mr_qiu_2026/pi-new-api-balance
 ```
 
 Try it without changing your settings:
 
 ```bash
-pi -e npm:pi-new-api-balance
+pi -e npm:@mr_qiu_2026/pi-new-api-balance
 ```
 
 ## Management
@@ -57,5 +57,5 @@ Use Pi Web's plugin settings or run `pi config` to enable or disable the package
 ```bash
 pi list
 pi update --extensions
-pi remove npm:pi-new-api-balance
+pi remove npm:@mr_qiu_2026/pi-new-api-balance
 ```

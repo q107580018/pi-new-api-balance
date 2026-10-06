@@ -1,5 +1,5 @@
 {
-  "name": "pi-new-api-balance",
+  "name": "@mr_qiu_2026/pi-new-api-balance",
   "version": "0.2.0",
   "description": "Display balances and usage for New API providers in Pi and Pi Web",
   "type": "module",
@@ -38,5 +38,8 @@
     "extensions": [
       "./extensions/index.ts"
     ]
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
