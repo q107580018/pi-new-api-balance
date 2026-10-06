@@ -38,11 +38,24 @@ The key under `providers` must match the provider ID in Pi's `models.json`. `bas
 
 Without management credentials, the package queries `/dashboard/billing/subscription` and `/dashboard/billing/usage` with the provider's existing API key. With management credentials, it queries `/api/user/self` for the actual account balance.
 
+## Install
+
+```bash
+pi install npm:pi-new-api-balance
+```
+
+Try it without changing your settings:
+
+```bash
+pi -e npm:pi-new-api-balance
+```
+
 ## Management
 
 Use Pi Web's plugin settings or run `pi config` to enable or disable the package extension.
 
 ```bash
 pi list
-pi remove /Users/qiuwen/.pi/agent/local/pi-new-api-balance
+pi update --extensions
+pi remove npm:pi-new-api-balance
 ```

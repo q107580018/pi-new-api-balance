@@ -3,7 +3,16 @@
   "version": "0.2.0",
   "description": "Display balances and usage for New API providers in Pi and Pi Web",
   "type": "module",
-  "private": true,
+  "license": "MIT",
+  "author": "Mr.QiuW <107580018@qq.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/q107580018/pi-new-api-balance.git"
+  },
+  "homepage": "https://github.com/q107580018/pi-new-api-balance#readme",
+  "bugs": {
+    "url": "https://github.com/q107580018/pi-new-api-balance/issues"
+  },
   "keywords": [
     "pi-package",
     "pi-extension",
@@ -12,8 +21,18 @@
     "balance",
     "multi-provider"
   ],
+  "files": [
+    "extensions",
+    "README.md",
+    "LICENSE"
+  ],
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    }
   },
   "pi": {
     "extensions": [
